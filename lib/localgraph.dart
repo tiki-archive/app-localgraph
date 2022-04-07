@@ -16,6 +16,9 @@ import 'src/edge/edge_service.dart';
 import 'src/vertex/vertex_model.dart';
 import 'src/vertex/vertex_service.dart';
 
+export 'src/edge/edge_model.dart';
+export 'src/vertex/vertex_model.dart';
+
 class LocalGraph {
   final TikiChainService _tikiChain;
   late final EdgeService _edgeService;

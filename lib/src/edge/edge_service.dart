@@ -28,4 +28,9 @@ class EdgeService {
       });
     });
   }
+
+  Future<void> pushed(String fingerprint) => _repository.setPushed(fingerprint);
+
+  Future<void> retryIn(String fingerprint, int seconds) => _repository.setRetry(
+      fingerprint, DateTime.now().add(Duration(seconds: seconds)));
 }

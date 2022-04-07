@@ -13,7 +13,7 @@ class EdgeModel {
   VertexModel? v2;
   DateTime? created;
   Uint8List? nft;
-  DateTime? synced;
+  DateTime? pushed;
   DateTime? retry;
 
   EdgeModel(
@@ -22,7 +22,7 @@ class EdgeModel {
       this.v2,
       this.created,
       this.nft,
-      this.synced,
+      this.pushed,
       this.retry});
 
   EdgeModel.fromMap(Map<String, dynamic>? map) {
@@ -34,7 +34,7 @@ class EdgeModel {
         this.created =
             DateTime.fromMillisecondsSinceEpoch(map['created_epoch']);
       this.nft = map['nft_hash'];
-      if (map['synced_epoch'] != null)
+      if (map['pushed_epoch'] != null)
         this.created =
             DateTime.fromMillisecondsSinceEpoch(map['created_epoch']);
       if (map['retry_epoch'] != null)
@@ -49,7 +49,7 @@ class EdgeModel {
         'v2': v2?.id,
         'created_epoch': created?.millisecondsSinceEpoch,
         'nft_hash': nft,
-        'synced_epoch': synced?.millisecondsSinceEpoch,
+        'pushed_epoch': pushed?.millisecondsSinceEpoch,
         'retry_epoch': retry?.millisecondsSinceEpoch
       };
 }

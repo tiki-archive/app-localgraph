@@ -49,7 +49,7 @@ void main() {
       expect(inserted.v1?.value, v1.value);
       expect(inserted.v2?.value, v2.value);
       expect(inserted.nft, edge.nft);
-      expect(inserted.synced, edge.synced);
+      expect(inserted.pushed, edge.pushed);
       expect(inserted.retry, edge.retry);
     });
 
@@ -111,7 +111,7 @@ void main() {
       expect(found?.v1?.value, v1.value);
       expect(found?.v2?.value, v2.value);
       expect(found?.nft, edge.nft);
-      expect(found?.synced, edge.synced);
+      expect(found?.pushed, edge.pushed);
       expect(found?.retry, edge.retry);
     });
   });
