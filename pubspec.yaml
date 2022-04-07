@@ -15,6 +15,12 @@ dependencies:
   logging: ^1.0.1
   sqflite_sqlcipher: ^2.1.0
   collection: ^1.15.0
+  wallet:
+    path: ../wallet/
+  localchain:
+    git:
+      url: https://github.com/tiki/localchain
+      ref: 0.0.2
 
 dependency_overrides:
   sqflite:
