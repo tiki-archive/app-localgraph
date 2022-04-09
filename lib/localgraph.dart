@@ -6,6 +6,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:httpp/httpp.dart';
 import 'package:localchain/localchain.dart';
 import 'package:sqflite_sqlcipher/sqlite_api.dart';
 import 'package:wallet/wallet.dart';
@@ -13,6 +14,9 @@ import 'package:wallet/wallet.dart';
 import 'edge.dart';
 import 'src/edge/edge_model.dart';
 import 'src/edge/edge_service.dart';
+import 'src/ingest/ingest_model_req.dart';
+import 'src/ingest/ingest_model_req_vertex.dart';
+import 'src/ingest/ingest_service.dart';
 import 'src/vertex/vertex_model.dart';
 import 'src/vertex/vertex_service.dart';
 
@@ -23,16 +27,23 @@ class LocalGraph {
   final TikiChainService _tikiChain;
   late final EdgeService _edgeService;
   late final VertexService _vertexService;
+  late final IngestService _ingestService;
 
   LocalGraph(this._tikiChain);
 
-  Future<LocalGraph> open(Database database) async {
+  Future<LocalGraph> open(Database database,
+      {Httpp? httpp,
+      Future<void> Function(void Function(String?)? onSuccess)? refresh,
+      String? accessToken}) async {
     _edgeService = await EdgeService().open(database);
     _vertexService = await VertexService().open(database);
+    _ingestService = IngestService(
+        edgeService: _edgeService, httpp: httpp, refresh: refresh);
+    retry(accessToken: accessToken);
     return this;
   }
 
-  Future<List<String>> add(List<Edge> req) async {
+  Future<List<String>> add(List<Edge> req, {String? accessToken}) async {
     List<VertexModel> vertices = List.empty(growable: true);
     List<EdgeModel> edges = List.empty(growable: true);
     List<String> fingerprints = List.empty(growable: true);
@@ -64,9 +75,30 @@ class LocalGraph {
           fingerprint: nft.fingerprint));
 
       fingerprints.add(nft.fingerprint!);
+
+      _ingestService.write(
+          req: IngestModelReq(
+              fingerprint: nft.fingerprint,
+              vertex1: IngestModelReqVertex(type: v1.type, value: v1.value),
+              vertex2: IngestModelReqVertex(type: v2.type, value: v2.value)),
+          accessToken: accessToken);
     }
     await _vertexService.insert(vertices);
     await _edgeService.insert(edges);
     return fingerprints;
+  }
+
+  Future<void> retry({String? accessToken}) async {
+    List<EdgeModel> retries = await _edgeService.findAllRetries();
+    retries.forEach((edge) {
+      _ingestService.write(
+          req: IngestModelReq(
+              fingerprint: edge.fingerprint,
+              vertex1: IngestModelReqVertex(
+                  type: edge.v1?.type, value: edge.v1?.value),
+              vertex2: IngestModelReqVertex(
+                  type: edge.v2?.type, value: edge.v2?.value)),
+          accessToken: accessToken);
+    });
   }
 }

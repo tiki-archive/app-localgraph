@@ -4,6 +4,7 @@
  */
 
 import 'package:httpp/httpp.dart';
+import 'package:logging/logging.dart';
 
 import '../edge/edge_service.dart';
 import 'ingest_model_req.dart';
@@ -11,6 +12,7 @@ import 'ingest_model_rsp.dart';
 import 'ingest_repository.dart';
 
 class IngestService {
+  final _log = Logger('IngestService');
   final HttppClient _client;
   final EdgeService _edgeService;
   final IngestRepository _repository;
@@ -26,18 +28,20 @@ class IngestService {
           String? accessToken,
           Function(Object)? onError,
           Function()? onSuccess}) =>
-      _refresh(
-          accessToken,
-          onError,
+      _refresh(accessToken, (err) {
+        _log.severe(err);
+        if (onError != null) onError(err);
+      },
           (token, onError) => _repository.write(
               client: _client,
               accessToken: token,
               body: req,
-              onSuccess: (retry) {
+              onSuccess: (retry) async {
                 if (retry.retryIn != null)
-                  _edgeService.retryIn(req.fingerprint!, retry.retryIn!);
+                  await _edgeService.retryIn(req.fingerprint!, retry.retryIn!);
                 else
-                  _edgeService.pushed(req.fingerprint!);
+                  await _edgeService
+                      .pushed(req.fingerprint!); //TODO test this func.
               },
               onError: onError));
 

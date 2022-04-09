@@ -13,7 +13,8 @@ import 'ingest_model_rsp_data.dart';
 class IngestRepository {
   final Logger _log = Logger('IngestRepository');
 
-  static const String _path = 'https://ingest.mytiki.com/api/latest/write';
+  //static const String _path = 'https://ingest.mytiki.com/api/latest/write';
+  static const String _path = 'http://127.0.0.1:10464/api/latest/write';
 
   Future<void> write(
       {required HttppClient client,

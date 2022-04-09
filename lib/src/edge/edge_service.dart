@@ -33,4 +33,6 @@ class EdgeService {
 
   Future<void> retryIn(String fingerprint, int seconds) => _repository.setRetry(
       fingerprint, DateTime.now().add(Duration(seconds: seconds)));
+
+  Future<List<EdgeModel>> findAllRetries() => _repository.findAllRetries();
 }

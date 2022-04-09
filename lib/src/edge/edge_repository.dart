@@ -92,10 +92,10 @@ class EdgeRepository {
 
   Future<List<EdgeModel>> findAllRetries({Transaction? txn}) async {
     List<Map<String, Object?>> rows = await (txn ?? _database).rawQuery(
-        '$_selectJoin WHERE retry_epoch <= ? AND synced_epoch IS NULL',
+        '$_selectJoin WHERE (retry_epoch <= ? OR retry_epoch IS NULL) AND pushed_epoch IS NULL',
         [DateTime.now().millisecondsSinceEpoch]);
-    List<EdgeModel> edges = List.empty(growable: true);
-    rows.forEach((row) => edges.add(EdgeModel.fromMap(row)));
+    List<EdgeModel> edges =
+        rows.map((row) => EdgeModel.fromMap(_map(row))).toList();
     _log.finest('findAllRetries: ${edges.length}');
     return edges;
   }

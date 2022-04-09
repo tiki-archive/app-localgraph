@@ -35,11 +35,9 @@ class EdgeModel {
             DateTime.fromMillisecondsSinceEpoch(map['created_epoch']);
       this.nft = map['nft_hash'];
       if (map['pushed_epoch'] != null)
-        this.created =
-            DateTime.fromMillisecondsSinceEpoch(map['created_epoch']);
+        this.pushed = DateTime.fromMillisecondsSinceEpoch(map['pushed_epoch']);
       if (map['retry_epoch'] != null)
-        this.created =
-            DateTime.fromMillisecondsSinceEpoch(map['created_epoch']);
+        this.retry = DateTime.fromMillisecondsSinceEpoch(map['retry_epoch']);
     }
   }
 
