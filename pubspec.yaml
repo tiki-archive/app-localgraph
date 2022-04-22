@@ -1,9 +1,10 @@
 name: localgraph
 description: mobile implemenation of the user specific kgraph
-version: 0.0.1
+version: 0.0.2
 homepage: https://mytiki.com
 repository: https://github.com/tiki/localgraph
 issue_tracker: https://github.com/tiki/localgraph/issues
+publish_to: 'none'
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
@@ -18,11 +19,11 @@ dependencies:
   wallet:
     git:
       url: https://github.com/tiki/wallet
-      ref: 0.0.10
+      ref: 0.0.12
   localchain:
     git:
       url: https://github.com/tiki/localchain
-      ref: 0.0.2
+      ref: 0.0.3
   httpp:
     git:
       url: https://github.com/tiki/httpp

@@ -29,10 +29,12 @@ class EdgeService {
     });
   }
 
-  Future<void> pushed(String fingerprint) => _repository.setPushed(fingerprint);
+  Future<void> pushed(List<String> fingerprints) =>
+      _repository.setPushed(fingerprints);
 
-  Future<void> retryIn(String fingerprint, int seconds) => _repository.setRetry(
-      fingerprint, DateTime.now().add(Duration(seconds: seconds)));
+  Future<void> retryIn(Map<String, int> retries) =>
+      _repository.setRetry(retries.map((key, value) =>
+          MapEntry(key, DateTime.now().add(Duration(seconds: value)))));
 
   Future<List<EdgeModel>> findAllRetries() => _repository.findAllRetries();
 }

@@ -24,7 +24,7 @@ class IngestService {
         _repository = IngestRepository();
 
   Future<void> write(
-          {required IngestModelReq req,
+          {required List<IngestModelReq> req,
           String? accessToken,
           Function(Object)? onError,
           Function()? onSuccess}) =>
@@ -37,11 +37,21 @@ class IngestService {
               accessToken: token,
               body: req,
               onSuccess: (retry) async {
-                if (retry.retryIn != null)
-                  await _edgeService.retryIn(req.fingerprint!, retry.retryIn!);
-                else
-                  await _edgeService
-                      .pushed(req.fingerprint!); //TODO test this func.
+                Map<String, int> retryMap = Map.fromEntries(retry
+                    .where((e) => e.fingerprint != null && e.retryIn != null)
+                    .map((e) => MapEntry(e.fingerprint!, e.retryIn!)));
+
+                List<String> pushed = req
+                    .where((req) =>
+                        req.fingerprint != null &&
+                        !retryMap.containsKey(req.fingerprint))
+                    .map((req) => req.fingerprint!)
+                    .toList();
+
+                List<Future<void>> edgeFutures = List.empty(growable: true);
+                edgeFutures.add(_edgeService.retryIn(retryMap));
+                edgeFutures.add(_edgeService.pushed(pushed));
+                await Future.wait(edgeFutures);
               },
               onError: onError));
 

@@ -44,16 +44,18 @@ class LocalGraph {
   }
 
   Future<List<String>> add(List<Edge> req, {String? accessToken}) async {
-    List<VertexModel> vertices = List.empty(growable: true);
-    List<EdgeModel> edges = List.empty(growable: true);
-    List<String> fingerprints = List.empty(growable: true);
-    for (Edge edge in req) {
-      DateTime now = DateTime.now();
+    Map<String, MapEntry<VertexModel, VertexModel>> vertices = {};
+    Map<String, Uint8List> mintReq = {};
+    DateTime now = DateTime.now();
+
+    for (int i = 0; i < req.length; i++) {
+      Edge edge = req.elementAt(i);
       VertexModel v1 =
           VertexModel(type: edge.v1.type, value: edge.v1.value, created: now);
       VertexModel v2 =
           VertexModel(type: edge.v2.type, value: edge.v2.value, created: now);
-      vertices.addAll([v1, v2]);
+
+      vertices[i.toString()] = MapEntry(v1, v2);
 
       final List<String> vString = <String>[
         '${edge.v1.type}:${edge.v1.value}',
@@ -61,44 +63,58 @@ class LocalGraph {
       ];
       vString.sort();
 
-      TikiChainCacheBlock block = await _tikiChain
-          .mint(Uint8List.fromList(utf8.encode(vString.join(','))));
-
-      BlockContentsDataNft nft =
-          Localchain.codec.decode(block.plaintextContents!);
-
-      edges.add(EdgeModel(
-          v1: v1,
-          v2: v2,
-          created: now,
-          nft: block.hash,
-          fingerprint: nft.fingerprint));
-
-      fingerprints.add(nft.fingerprint!);
-
-      _ingestService.write(
-          req: IngestModelReq(
-              fingerprint: nft.fingerprint,
-              vertex1: IngestModelReqVertex(type: v1.type, value: v1.value),
-              vertex2: IngestModelReqVertex(type: v2.type, value: v2.value)),
-          accessToken: accessToken);
+      mintReq[i.toString()] =
+          Uint8List.fromList(utf8.encode(vString.join(',')));
     }
-    await _vertexService.insert(vertices);
+
+    Map<String, TikiChainCacheModel> nfts = await _tikiChain.mint(mintReq);
+    List<EdgeModel> edges = List.empty(growable: true);
+    List<IngestModelReq> pushes = List.empty(growable: true);
+    List<String> fingerprints = List.empty(growable: true);
+
+    nfts.forEach((id, block) {
+      MapEntry<VertexModel, VertexModel>? vpair = vertices[id];
+      String? fingerprint =
+          BlockContentsDataNft.payload(block.contents!).fingerprint;
+
+      if (vpair != null && fingerprint != null) {
+        edges.add(EdgeModel(
+            v1: VertexModel(
+                type: vpair.key.type, value: vpair.key.value, created: now),
+            v2: VertexModel(
+                type: vpair.value.type, value: vpair.value.value, created: now),
+            created: now,
+            nft: block.hash,
+            fingerprint: fingerprint));
+
+        pushes.add(IngestModelReq(
+            fingerprint: fingerprint,
+            vertex1: IngestModelReqVertex(
+                type: vpair.key.type, value: vpair.key.value),
+            vertex2: IngestModelReqVertex(
+                type: vpair.value.type, value: vpair.value.value)));
+
+        fingerprints.add(fingerprint);
+      }
+    });
+
+    _ingestService.write(req: pushes, accessToken: accessToken);
+
+    await _vertexService.insert(
+        vertices.values.expand((entry) => [entry.key, entry.value]).toList());
     await _edgeService.insert(edges);
     return fingerprints;
   }
 
   Future<void> retry({String? accessToken}) async {
-    List<EdgeModel> retries = await _edgeService.findAllRetries();
-    retries.forEach((edge) {
-      _ingestService.write(
-          req: IngestModelReq(
-              fingerprint: edge.fingerprint,
-              vertex1: IngestModelReqVertex(
-                  type: edge.v1?.type, value: edge.v1?.value),
-              vertex2: IngestModelReqVertex(
-                  type: edge.v2?.type, value: edge.v2?.value)),
-          accessToken: accessToken);
-    });
+    List<IngestModelReq> retries = (await _edgeService.findAllRetries())
+        .map((edge) => IngestModelReq(
+            fingerprint: edge.fingerprint,
+            vertex1: IngestModelReqVertex(
+                type: edge.v1?.type, value: edge.v1?.value),
+            vertex2: IngestModelReqVertex(
+                type: edge.v2?.type, value: edge.v2?.value)))
+        .toList();
+    return _ingestService.write(req: retries, accessToken: accessToken);
   }
 }
