@@ -138,8 +138,8 @@ void main() {
 
       await edgeRepository.insert(edge);
 
-      await edgeRepository.setRetry(
-          edge.fingerprint!, DateTime.now().add(Duration(days: 1)));
+      await edgeRepository
+          .setRetry({edge.fingerprint!: DateTime.now().add(Duration(days: 1))});
 
       EdgeModel? found =
           await edgeRepository.findByFingerprint(edge.fingerprint!);
@@ -170,7 +170,7 @@ void main() {
 
       await edgeRepository.insert(edge);
 
-      await edgeRepository.setPushed(edge.fingerprint!);
+      await edgeRepository.setPushed([edge.fingerprint!]);
 
       EdgeModel? found =
           await edgeRepository.findByFingerprint(edge.fingerprint!);
