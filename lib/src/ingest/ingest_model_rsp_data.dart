@@ -5,20 +5,23 @@
 
 class IngestModelRspData {
   int? retryIn;
+  String? fingerprint;
 
-  IngestModelRspData({this.retryIn});
+  IngestModelRspData({this.retryIn, this.fingerprint});
 
   IngestModelRspData.fromJson(Map<String, dynamic>? json) {
     if (json != null) {
       this.retryIn = json['retryIn'];
+      this.fingerprint = json['fingerprint'];
     }
   }
 
-  Map<String, dynamic> toJson() => {'retryIn': retryIn};
+  Map<String, dynamic> toJson() =>
+      {'retryIn': retryIn, 'fingerprint': fingerprint};
 
   @override
   String toString() {
-    return 'IngestModelRsp{retryIn: $retryIn}';
+    return 'IngestModelRspData{retryIn: $retryIn, fingerprint: $fingerprint}';
   }
 
   @override
@@ -26,8 +29,9 @@ class IngestModelRspData {
       identical(this, other) ||
       other is IngestModelRspData &&
           runtimeType == other.runtimeType &&
-          retryIn == other.retryIn;
+          retryIn == other.retryIn &&
+          fingerprint == other.fingerprint;
 
   @override
-  int get hashCode => retryIn.hashCode;
+  int get hashCode => retryIn.hashCode ^ fingerprint.hashCode;
 }

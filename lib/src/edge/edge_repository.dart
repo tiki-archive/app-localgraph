@@ -52,19 +52,23 @@ class EdgeRepository {
     return edge;
   }
 
-  Future<void> setPushed(String fingerprint,
+  Future<void> setPushed(List<String> fingerprints,
       {Transaction? txn, DateTime? pushed}) async {
     if (pushed == null) pushed = DateTime.now();
-    await (txn ?? _database).update(
-        table, {'pushed_epoch': pushed.millisecondsSinceEpoch},
-        where: 'fingerprint = ?', whereArgs: [fingerprint]);
+    Batch batch = (txn ?? _database).batch();
+    fingerprints.forEach((fingerprint) => batch.update(
+        table, {'pushed_epoch': pushed?.millisecondsSinceEpoch},
+        where: 'fingerprint = ?', whereArgs: [fingerprint]));
+    await batch.commit(noResult: true);
   }
 
-  Future<void> setRetry(String fingerprint, DateTime retry,
+  Future<void> setRetry(Map<String, DateTime> retries,
       {Transaction? txn}) async {
-    await (txn ?? _database).update(
-        table, {'retry_epoch': retry.millisecondsSinceEpoch},
-        where: 'fingerprint = ?', whereArgs: [fingerprint]);
+    Batch batch = (txn ?? _database).batch();
+    retries.entries.forEach((retry) => batch.update(
+        table, {'retry_epoch': retry.value.millisecondsSinceEpoch},
+        where: 'fingerprint = ?', whereArgs: [retry.key]));
+    await batch.commit(noResult: true);
   }
 
   static const _selectJoin =

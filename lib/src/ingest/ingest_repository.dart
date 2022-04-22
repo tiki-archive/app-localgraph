@@ -3,6 +3,8 @@
  * MIT license. See LICENSE file in root directory.
  */
 
+import 'dart:convert';
+
 import 'package:httpp/httpp.dart';
 import 'package:logging/logging.dart';
 
@@ -18,14 +20,14 @@ class IngestRepository {
   Future<void> write(
       {required HttppClient client,
       String? accessToken,
-      IngestModelReq? body,
-      void Function(IngestModelRspData)? onSuccess,
+      List<IngestModelReq>? body,
+      void Function(List<IngestModelRspData>)? onSuccess,
       void Function(Object)? onError}) {
     HttppRequest request = HttppRequest(
         uri: Uri.parse(_path),
         verb: HttppVerb.POST,
         headers: HttppHeaders.typical(bearerToken: accessToken),
-        body: HttppBody.fromJson(body?.toJson()),
+        body: HttppBody(jsonEncode(body?.map((e) => e.toJson()).toList())),
         timeout: Duration(seconds: 30),
         onSuccess: (rsp) {
           if (onSuccess != null) {

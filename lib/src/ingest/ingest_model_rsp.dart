@@ -10,7 +10,7 @@ import 'ingest_model_rsp_page.dart';
 class IngestModelRsp<T> {
   String? status;
   int? code;
-  IngestModelRspData? data;
+  List<IngestModelRspData>? data;
   IngestModelRspPage? page;
   List<IngestModelRspMessage>? messages;
 
@@ -21,12 +21,16 @@ class IngestModelRsp<T> {
       status = json['status'];
       code = json['code'];
 
-      data = IngestModelRspData.fromJson(json['data']);
       page = IngestModelRspPage.fromJson(json['page']);
 
       if (json['messages'] != null)
         this.messages = (json['messages'] as List)
             .map((e) => IngestModelRspMessage.fromJson(e))
+            .toList();
+
+      if (json['data'] != null)
+        this.data = (json['data'] as List)
+            .map((e) => IngestModelRspData.fromJson(e))
             .toList();
     }
   }
@@ -35,7 +39,7 @@ class IngestModelRsp<T> {
   Map<String, dynamic> toJson() => {
         'status': status,
         'code': code,
-        'data': data?.toJson(),
+        'data': data?.map((e) => e.toJson()).toList(),
         'page': page?.toJson(),
         'messages': messages?.map((e) => e.toJson()).toList()
       };
