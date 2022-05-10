@@ -7,11 +7,10 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:httpp/httpp.dart';
-import 'package:localchain/localchain.dart';
 import 'package:sqflite_sqlcipher/sqlite_api.dart';
-import 'package:wallet/wallet.dart';
+import 'package:tiki_localchain/tiki_localchain.dart';
+import 'package:tiki_wallet/tiki_wallet.dart';
 
-import 'edge.dart';
 import 'src/edge/edge_model.dart';
 import 'src/edge/edge_service.dart';
 import 'src/ingest/ingest_model_req.dart';
@@ -19,19 +18,20 @@ import 'src/ingest/ingest_model_req_vertex.dart';
 import 'src/ingest/ingest_service.dart';
 import 'src/vertex/vertex_model.dart';
 import 'src/vertex/vertex_service.dart';
+import 'tiki_localgraph_edge.dart';
 
 export 'src/edge/edge_model.dart';
 export 'src/vertex/vertex_model.dart';
 
-class LocalGraph {
+class TikiLocalGraph {
   final TikiChainService _tikiChain;
   late final EdgeService _edgeService;
   late final VertexService _vertexService;
   late final IngestService _ingestService;
 
-  LocalGraph(this._tikiChain);
+  TikiLocalGraph(this._tikiChain);
 
-  Future<LocalGraph> open(Database database,
+  Future<TikiLocalGraph> open(Database database,
       {Httpp? httpp,
       Future<void> Function(void Function(String?)? onSuccess)? refresh,
       String? accessToken}) async {
@@ -43,13 +43,14 @@ class LocalGraph {
     return this;
   }
 
-  Future<List<String>> add(List<Edge> req, {String? accessToken}) async {
+  Future<List<String>> add(List<TikiLocalGraphEdge> req,
+      {String? accessToken}) async {
     Map<String, MapEntry<VertexModel, VertexModel>> vertices = {};
     Map<String, Uint8List> mintReq = {};
     DateTime now = DateTime.now();
 
     for (int i = 0; i < req.length; i++) {
-      Edge edge = req.elementAt(i);
+      TikiLocalGraphEdge edge = req.elementAt(i);
       VertexModel v1 =
           VertexModel(type: edge.v1.type, value: edge.v1.value, created: now);
       VertexModel v2 =

@@ -8,12 +8,12 @@ import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:localgraph/src/edge/edge_model.dart';
-import 'package:localgraph/src/edge/edge_repository.dart';
-import 'package:localgraph/src/edge/edge_service.dart';
-import 'package:localgraph/src/vertex/vertex_model.dart';
-import 'package:localgraph/src/vertex/vertex_service.dart';
 import 'package:sqflite_sqlcipher/sqflite.dart';
+import 'package:tiki_localgraph/src/edge/edge_model.dart';
+import 'package:tiki_localgraph/src/edge/edge_repository.dart';
+import 'package:tiki_localgraph/src/edge/edge_service.dart';
+import 'package:tiki_localgraph/src/vertex/vertex_model.dart';
+import 'package:tiki_localgraph/src/vertex/vertex_service.dart';
 import 'package:uuid/uuid.dart';
 
 void main() {
