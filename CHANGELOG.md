@@ -1,3 +1,7 @@
+## 0.0.4
+
+* Use access token function
+
 ## 0.0.3
 
 * Update wallet dependency
