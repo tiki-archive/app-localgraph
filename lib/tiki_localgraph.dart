@@ -28,23 +28,24 @@ class TikiLocalGraph {
   late final EdgeService _edgeService;
   late final VertexService _vertexService;
   late final IngestService _ingestService;
+  late final String? Function() _accessToken;
 
   TikiLocalGraph(this._tikiChain);
 
   Future<TikiLocalGraph> open(Database database,
       {Httpp? httpp,
       Future<void> Function(void Function(String?)? onSuccess)? refresh,
-      String? accessToken}) async {
+      String? Function()? accessToken}) async {
     _edgeService = await EdgeService().open(database);
     _vertexService = await VertexService().open(database);
     _ingestService = IngestService(
         edgeService: _edgeService, httpp: httpp, refresh: refresh);
-    retry(accessToken: accessToken);
+    _accessToken = accessToken ?? () => null;
+    retry();
     return this;
   }
 
-  Future<List<String>> add(List<TikiLocalGraphEdge> req,
-      {String? accessToken}) async {
+  Future<List<String>> add(List<TikiLocalGraphEdge> req) async {
     Map<String, MapEntry<VertexModel, VertexModel>> vertices = {};
     Map<String, Uint8List> mintReq = {};
     DateTime now = DateTime.now();
@@ -99,7 +100,7 @@ class TikiLocalGraph {
       }
     });
 
-    _ingestService.write(req: pushes, accessToken: accessToken);
+    _ingestService.write(req: pushes, accessToken: _accessToken());
 
     await _vertexService.insert(
         vertices.values.expand((entry) => [entry.key, entry.value]).toList());
@@ -107,7 +108,7 @@ class TikiLocalGraph {
     return fingerprints;
   }
 
-  Future<void> retry({String? accessToken}) async {
+  Future<void> retry() async {
     List<IngestModelReq> retries = (await _edgeService.findAllRetries())
         .map((edge) => IngestModelReq(
             fingerprint: edge.fingerprint,
@@ -116,6 +117,6 @@ class TikiLocalGraph {
             vertex2: IngestModelReqVertex(
                 type: edge.v2?.type, value: edge.v2?.value)))
         .toList();
-    return _ingestService.write(req: retries, accessToken: accessToken);
+    return _ingestService.write(req: retries, accessToken: _accessToken());
   }
 }
