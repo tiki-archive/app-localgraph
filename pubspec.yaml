@@ -19,13 +19,6 @@ dependencies:
   tiki_localchain: ^0.0.5
   httpp: ^0.0.4
 
-dependency_overrides:
-  sqflite:
-    git:
-      url: https://www.github.com/davidmartos96/sqflite_sqlcipher.git
-      path: sqflite
-      ref: fmdb_override
-
 dev_dependencies:
   flutter_test:
     sdk: flutter
