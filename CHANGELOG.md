@@ -1,3 +1,12 @@
+## 0.0.3
+
+* Update wallet dependency
+
+## 0.0.2
+
+* Bulk add edges 
+* Bulk push edges
+
 ## 0.0.1
 
 * Base functionality implemented. Write, Read, Verify
