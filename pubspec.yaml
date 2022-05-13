@@ -15,7 +15,7 @@ dependencies:
   logging: ^1.0.1
   sqflite_sqlcipher: ^2.1.0
   collection: ^1.15.0
-  tiki_wallet: ^0.0.18
+  tiki_wallet: ^0.0.20
   tiki_localchain: ^0.0.5
   httpp: ^0.0.4
 
