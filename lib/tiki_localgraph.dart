@@ -100,11 +100,12 @@ class TikiLocalGraph {
       }
     });
 
-    _ingestService.write(req: pushes, accessToken: _accessToken());
-
-    await _vertexService.insert(
-        vertices.values.expand((entry) => [entry.key, entry.value]).toList());
-    await _edgeService.insert(edges);
+    if (pushes.length > 0)
+      _ingestService.write(req: pushes, accessToken: _accessToken());
+    if (vertices.length > 0)
+      await _vertexService.insert(
+          vertices.values.expand((entry) => [entry.key, entry.value]).toList());
+    if (edges.length > 0) await _edgeService.insert(edges);
     return fingerprints;
   }
 
@@ -117,6 +118,7 @@ class TikiLocalGraph {
             vertex2: IngestModelReqVertex(
                 type: edge.v2?.type, value: edge.v2?.value)))
         .toList();
-    return _ingestService.write(req: retries, accessToken: _accessToken());
+    if (retries.length > 0)
+      return _ingestService.write(req: retries, accessToken: _accessToken());
   }
 }
