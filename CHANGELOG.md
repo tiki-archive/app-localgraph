@@ -1,3 +1,7 @@
+## 0.0.5
+
+* Bug fix for empty list push
+
 ## 0.0.4
 
 * Use access token function
