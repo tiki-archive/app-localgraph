@@ -104,6 +104,21 @@ class EdgeRepository {
     return edges;
   }
 
+  Future<List<EdgeModel>> findLatest(int pageNum,
+      {int pageSize = 100, Transaction? txn}) async {
+    int offset = pageNum <= 1 ? 0 : pageSize * (pageNum - 1);
+    List<Map<String, Object?>> rows = await (txn ?? _database).rawQuery(
+        '$_selectJoin ORDER BY $table.created_epoch DESC LIMIT ?1 OFFSET ?2',
+        [pageSize, offset]);
+    if (rows.isNotEmpty) {
+      List<EdgeModel> edges =
+          rows.map((row) => EdgeModel.fromMap(_map(row))).toList();
+      _log.finest('findLatest: ${edges.length} records');
+      return edges;
+    } else
+      return List.empty();
+  }
+
   Map<String, Object?> _map(Map<String, Object?> row) {
     Map<String, Object?> v1 = Map();
     Map<String, Object?> v2 = Map();

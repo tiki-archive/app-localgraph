@@ -121,4 +121,7 @@ class TikiLocalGraph {
     if (retries.length > 0)
       return _ingestService.write(req: retries, accessToken: _accessToken());
   }
+
+  Future<List<EdgeModel>> latest(int pageNum, {int pageSize = 100}) =>
+      _edgeService.findLatest(pageNum, pageSize: pageSize);
 }
