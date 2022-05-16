@@ -37,4 +37,7 @@ class EdgeService {
           MapEntry(key, DateTime.now().add(Duration(seconds: value)))));
 
   Future<List<EdgeModel>> findAllRetries() => _repository.findAllRetries();
+
+  Future<List<EdgeModel>> findLatest(int pageNum, {int pageSize = 100}) =>
+      _repository.findLatest(pageNum, pageSize: pageSize);
 }

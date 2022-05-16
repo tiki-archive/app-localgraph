@@ -307,5 +307,58 @@ void main() {
 
       expect(retries.length, 0);
     });
+
+    test('findLatest - Success', () async {
+      Database database = await openDatabase('${Uuid().v4()}.db');
+      VertexService vertexService = await VertexService().open(database);
+
+      VertexModel v1 = VertexModel(
+          type: Uuid().v4(), value: Uuid().v4(), created: DateTime.now());
+      VertexModel v2 = VertexModel(
+          type: Uuid().v4(), value: Uuid().v4(), created: DateTime.now());
+
+      vertexService.insert([v1, v2]);
+
+      await EdgeService().open(database);
+      EdgeRepository edgeRepository = EdgeRepository(database);
+
+      String fp1 = Uuid().v4().toString();
+      String fp2 = Uuid().v4().toString();
+      String fp3 = Uuid().v4().toString();
+
+      EdgeModel edge1 = EdgeModel(
+          fingerprint: fp1,
+          v1: v1,
+          v2: v2,
+          created: DateTime.now().subtract(Duration(hours: 1)),
+          nft: Uint8List.fromList(utf8.encode('hello')));
+
+      EdgeModel edge2 = EdgeModel(
+          fingerprint: fp2,
+          v1: v1,
+          v2: v2,
+          created: DateTime.now(),
+          nft: Uint8List.fromList(utf8.encode('hello')));
+
+      EdgeModel edge3 = EdgeModel(
+          fingerprint: fp3,
+          v1: v1,
+          v2: v2,
+          created: DateTime.now().add(Duration(hours: 1)),
+          nft: Uint8List.fromList(utf8.encode('hello')));
+
+      await edgeRepository.insert(edge1);
+      await edgeRepository.insert(edge2);
+      await edgeRepository.insert(edge3);
+
+      List<EdgeModel> page1 = await edgeRepository.findLatest(1, pageSize: 2);
+      List<EdgeModel> page2 = await edgeRepository.findLatest(2, pageSize: 2);
+
+      expect(page1.length, 2);
+      expect(page2.length, 1);
+      expect(page1.elementAt(0).fingerprint, fp3);
+      expect(page1.elementAt(1).fingerprint, fp2);
+      expect(page2.elementAt(0).fingerprint, fp1);
+    });
   });
 }
