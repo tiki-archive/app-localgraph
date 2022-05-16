@@ -1,3 +1,7 @@
+## 0.0.6
+
+* Get latest edges by page
+
 ## 0.0.5
 
 * Bug fix for empty list push
