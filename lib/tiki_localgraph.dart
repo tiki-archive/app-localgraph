@@ -69,7 +69,7 @@ class TikiLocalGraph {
           Uint8List.fromList(utf8.encode(vString.join(',')));
     }
 
-    Map<String, TikiChainCacheModel> nfts = await _tikiChain.mint(mintReq);
+    Map<String, TikiChainBlock> nfts = await _tikiChain.mint(mintReq);
     List<EdgeModel> edges = List.empty(growable: true);
     List<IngestModelReq> pushes = List.empty(growable: true);
     List<String> fingerprints = List.empty(growable: true);
@@ -77,7 +77,7 @@ class TikiLocalGraph {
     nfts.forEach((id, block) {
       MapEntry<VertexModel, VertexModel>? vpair = vertices[id];
       String? fingerprint =
-          BlockContentsDataNft.payload(block.contents!).fingerprint;
+          BlockContentsDataNft.payload(block.plaintext!).fingerprint;
 
       if (vpair != null && fingerprint != null) {
         edges.add(EdgeModel(
