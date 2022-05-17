@@ -1,3 +1,7 @@
+## 0.0.7
+
+* Bump to tiki wallet 0.0.21
+
 ## 0.0.6
 
 * Get latest edges by page
